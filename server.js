@@ -4,6 +4,9 @@ import cors from 'cors';
 import path from 'path';
 import fileUpload from 'express-fileupload';
 
+//ROUTES
+import UserRoutes from './routes/UserRoutes.js'
+
 const app = express();
 
 dotenv.config();
@@ -13,6 +16,8 @@ app.use(cors());
 app.get('/', (req, res) => {
     res.status(201).json({success:true, message:'Welcome to instagram-clone api '}) 
 });
+
+app.use('/api/v1/users', UserRoutes);
 
 const PORT = process.env.PORT || 5000;
 
