@@ -5,8 +5,11 @@ import path from 'path';
 import fileUpload from 'express-fileupload';
 import connectDB from './config/db.js';
 
+import { notFound, errorHandler } from './middleware/ErrorMiddleware.js';
+
 //ROUTES
-import UserRoutes from './routes/UserRoutes.js'
+import UserRoutes from './routes/UserRoutes.js';
+import AuthRoutes from './routes/AuthRoutes.js';
 
 const app = express();
 
@@ -21,6 +24,14 @@ app.get('/', (req, res) => {
 });
 
 app.use('/api/v1/users', UserRoutes);
+
+app.use('/api/v1/auth', AuthRoutes);
+
+const __dirname = path.resolve();
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+app.use(notFound);
+app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 
