@@ -6,7 +6,8 @@ import crypto from 'crypto';
 import sendMail from '../utils/sendMail.js';
 
 export const login = asyncHandler(async (req,res) => {
-    const user = await User.findOne({ email: req.body.email }).select('+password').populate('posts');
+    const email = req.body.email;
+    const user = await User.findOne({ email: email }).select('+password');
 
     if(!user) {
         res.status(401);
@@ -23,7 +24,7 @@ export const login = asyncHandler(async (req,res) => {
     const token = generateToken(user.id);
 
     const data = {
-        id: user._id,
+        id: user.id,
         name: user.name,
         email: user.email,
         role: user.role,
@@ -39,7 +40,12 @@ export const login = asyncHandler(async (req,res) => {
 
 
 export const register = asyncHandler(async (req, res) => {
-    const { name, email, password, role } = req.body;
+    const name = req.body.name;
+    const email = req.body.email;
+    const password = req.body.password;
+    const role = req.body.role;
+
+    console.log(email, role, password, name);
 
     const user  = await User.create({ name: name, email: email, password: password, role: role });
 

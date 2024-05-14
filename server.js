@@ -4,10 +4,11 @@ import cors from 'cors';
 import path from 'path';
 import fileUpload from 'express-fileupload';
 import connectDB from './config/db.js';
+import bodyParser from 'body-parser';
 
 import { notFound, errorHandler } from './middleware/ErrorMiddleware.js';
 
-//ROUTES
+
 import UserRoutes from './routes/UserRoutes.js';
 import AuthRoutes from './routes/AuthRoutes.js';
 
@@ -18,6 +19,10 @@ dotenv.config();
 connectDB();
 
 app.use(cors());
+
+
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
 app.get('/', (req, res) => {
     res.status(201).json({success:true, message:'Welcome to instagram-clone api '}) 
