@@ -3,6 +3,7 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import path from 'path';
 import fileUpload from 'express-fileupload';
+import connectDB from './config/db.js';
 
 //ROUTES
 import UserRoutes from './routes/UserRoutes.js'
@@ -10,6 +11,8 @@ import UserRoutes from './routes/UserRoutes.js'
 const app = express();
 
 dotenv.config();
+
+connectDB();
 
 app.use(cors());
 
