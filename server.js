@@ -11,6 +11,8 @@ import { notFound, errorHandler } from './middleware/ErrorMiddleware.js';
 
 import UserRoutes from './routes/UserRoutes.js';
 import AuthRoutes from './routes/AuthRoutes.js';
+import CommentRoutes from './routes/CommentRoutes.js';
+import PostRoutes from './routes/PostRoutes.js';
 
 const app = express();
 
@@ -31,6 +33,10 @@ app.get('/', (req, res) => {
 app.use('/api/v1/users', UserRoutes);
 
 app.use('/api/v1/auth', AuthRoutes);
+
+app.use('/api/v1/comments', CommentRoutes);
+
+app.use('/api/v1/posts', PostRoutes);
 
 const __dirname = path.resolve();
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
