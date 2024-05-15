@@ -7,7 +7,7 @@
   "scripts": {
     "test": "npm start",
     "start": "nodemon server.js",
-    "insertData": "nodemon sedeer.js -i",
+    "insertData": "nodemon sedeer.js -in",
     "deleteData": "nodemon sedeer.js -d"
   },
   "author": "Tox-in (Tony Herve)",
