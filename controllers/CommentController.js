@@ -1,4 +1,4 @@
-import Comment from "../models/Comment";
+import Comment from "../models/Comment.js";
 import Post from '../models/Post.js';
 import asyncHandler from 'express-async-handler';
 

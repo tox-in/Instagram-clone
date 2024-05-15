@@ -1,5 +1,5 @@
 import asyncHandler from 'express-async-handler';
-import Post from '../models/Post';
+import Post from '../models/Post.js';
 
 export const getAll = asyncHandler(async (req,res) => {
     const posts = await Post.find({})
