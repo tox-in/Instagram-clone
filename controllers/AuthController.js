@@ -1,13 +1,13 @@
 import User from "../models/User.js";
 import asyncHandler from 'express-async-handler';
-import generateToken from "../utils/generateToken.js";
+import {generateToken} from "../utils/generateToken.js";
 import bcrypt from 'bcrypt';
 import crypto from 'crypto';
 import sendMail from '../utils/sendMail.js';
 
 export const login = asyncHandler(async (req,res) => {
     const email = req.body.email;
-    const user = await User.findOne({ email: email }).select('+password');
+    const user = await User.findOne({ email: email }).select('+password').populate('posts');
 
     if(!user) {
         res.status(401);
@@ -44,8 +44,6 @@ export const register = asyncHandler(async (req, res) => {
     const email = req.body.email;
     const password = req.body.password;
     const role = req.body.role;
-
-    console.log(email, role, password, name);
 
     const user  = await User.create({ name: name, email: email, password: password, role: role });
 
@@ -88,13 +86,12 @@ export const uploadAvatar = asyncHandler(async (req, res) => {
 
 
 export const updateDetails = asyncHandler(async (req, res) => {
-    const { name, email } = req.body;
+    const { name } = req.body;
 
     const user = await User.findByIdAndUpdate(
         req.user.id,
         {
             name,
-            email,
         },
         {
             new: true,
@@ -127,7 +124,7 @@ export const forgotPassword = asyncHandler(async (req, res) => {
     const resetToken = crypto.randomBytes(20).toString('hex');
     const hash = crypto.createHash('sha256').update(resetToken).digest('hex');
 
-    const email = req.body;
+    const email = req.body.email;
 
     const user = await User.findOne({ email });
 
@@ -192,6 +189,7 @@ export const resetPassword = asyncHandler(async (req, res) => {
 
 export const followUser = asyncHandler(async (req,res) => {
     const user = await User.findById(req.params.userId);
+    const userToFollow = user;
 
     if(!user) {
         res.status(404);
@@ -219,12 +217,19 @@ export const followUser = asyncHandler(async (req,res) => {
         }
     );
 
-    res.status(201).json({ success: true, data: follow });
+    const updatedCurrentUser = await User.findByIdAndUpdate(
+        req.user._id,
+        { $push: { following: userToFollow._id } },
+        { new: true, runValidators: true }
+    );
+
+    res.status(201).json({ success: true, data: 'successfully followed' });
 });
 
 
 export const unfollowUser = asyncHandler(async (req, res) => {
 	const user = await User.findById(req.params.userId);
+    const userToUnfollow= user;
 
 	if (!user) {
 		res.status(404);
@@ -242,7 +247,20 @@ export const unfollowUser = asyncHandler(async (req, res) => {
 		}
 	);
 
-	res.status(201).json({ success: true, data: unfollow });
+    const updateCurrentUser = await User.findByIdAndUpdate(
+        req.user._id,
+        { 
+            $pull: { following: userToUnfollow.id },
+        },
+        {
+            new: true,
+            runValidators: true,
+        }
+    )
+
+
+
+	res.status(201).json({ success: true, data: 'successfully unfollowed' });
 });
 
 export const getMe = asyncHandler(async (req, res) => {
