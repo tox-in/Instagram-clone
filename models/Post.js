@@ -8,8 +8,8 @@ const PostSchema = mongoose.Schema(
         },
 
         photo: {
-            type: [String],
-            default: [],
+            type: String,
+            default: 'avatar_default.jpg',
             required: [true, 'Please add a photo'],
         },
 
@@ -31,7 +31,6 @@ const PostSchema = mongoose.Schema(
             required: true,
         },
     },
-
     {
         toJSON: { virtuals: true },
         toObject: { virtuals: true },

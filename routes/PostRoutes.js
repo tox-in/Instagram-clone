@@ -6,7 +6,8 @@ import {
     updatePost,
     deletePost,
     likePost,
-    unlikePost
+    unlikePost,
+    updatePostPhoto
 } from '../controllers/PostController.js';
 import { ProtectMiddleware, AuthMiddleware } from '../middleware/ProtectMiddleware.js';
 import CommentRoutes from './CommentRoutes.js';
@@ -19,12 +20,13 @@ const upload = multer({storage: storage})
 
 router.use('/:postId/comments', CommentRoutes);
 router.route('/').get(getAll);
-router.post('/', ProtectMiddleware, upload.array('posts', 5), addPost);
+router.post('/', ProtectMiddleware, upload.single("post"), addPost);
 router
     .route('/:id')
     .get(getPost)
     .put(ProtectMiddleware, AuthMiddleware('user','admin'), updatePost)
-    .delete(ProtectMiddleware, AuthMiddleware('user','admin'), deletePost);
+router.delete('/:id', ProtectMiddleware, AuthMiddleware('user', 'admin'),deletePost);
+router.put('/updateImg/:id', ProtectMiddleware, upload.single("post"), AuthMiddleware('user', 'admin'), updatePostPhoto);
 
 router.route('/:id/likes').put(ProtectMiddleware,likePost);
 router.route('/:id/unlike').put(ProtectMiddleware,unlikePost);
