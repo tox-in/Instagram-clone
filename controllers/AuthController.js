@@ -52,35 +52,28 @@ export const register = asyncHandler(async (req, res) => {
 
 
 export const uploadAvatar = asyncHandler(async (req, res) => {
-    if(req.files) {
-        if(!req.files.avatar.mimetype.startsWith('image')) {
-            res.status(401);
-            throw new Error(`Please add an image file`);
-        }
-
-        if(req.files.avatar.size > process.env.FILE_UPLOAD_LIMIT) {
-            res.status(401);
-            throw new Error(`Please add an image less than ${process.env.FILE_UPLOAD_LIMIT}`);
-        }
+    if(!req.files || !req.files.avatar) {
+        res.status(404).json({ success: false, message: 'No file uploaded' });
+        return;
+    }
 
         const avatarFile = req.files.avatar;
 
-        avatarFile.mv(`${process.env.FILE_UPLOAD_PATH}/users/${avatarFile.name}`, async (err) => {
-            if(err) {
-                res.status(401);
-                throw new Error(err.message);
-            }
+    try{
+        const result = await cloudinary.uploader.upload(avatarFile.tempFilePath, { folder: 'avatars' });
 
-            await User.findByIdAndUpdate(
-                req.user.id,
-                {
-                    avatar: avatarFile.name,
-                },
-                { new: true, runValidators: true}
-            );
-
-            res.status(201).json({ success: true, data: avatarFile.name });
-        });
+        const user = await User.findByIdAndUpdate(
+        req.user.id,
+        {
+            avatar: result.secure_url,
+        },
+        {
+            new: true
+        }
+    );
+    res.status(201).json ({ success: true, data: user });
+    } catch (e) {
+        res.status(500).json({ success: false, message: 'Failed to upload avatar'});
     }
 });
 

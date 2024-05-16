@@ -38,9 +38,6 @@ app.use('/api/v1/comments', CommentRoutes);
 
 app.use('/api/v1/posts', PostRoutes);
 
-const __dirname = path.resolve();
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-
 app.use(notFound);
 app.use(errorHandler);
 
