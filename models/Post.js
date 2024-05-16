@@ -8,8 +8,8 @@ const PostSchema = mongoose.Schema(
         },
 
         photo: {
-            type: String,
-            default: {},
+            type: [String],
+            default: [],
             required: [true, 'Please add a photo'],
         },
 

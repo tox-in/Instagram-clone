@@ -1,5 +1,7 @@
 import asyncHandler from 'express-async-handler';
 import Post from '../models/Post.js';
+import cloudinary from "cloudinary";
+import streamifier from "streamifier";
 
 export const getAll = asyncHandler(async (req,res) => {
     const posts = await Post.find({})
@@ -29,40 +31,39 @@ export const getPost = asyncHandler(async (req,res) => {
 
 
 export const addPost = asyncHandler(async (req, res) => {
+
     req.body.user = req.user.id;
-    let post = await Post.create(req.body);
 
-    if(req.files) {
-        if(!req.files.mimetype.startsWith('image')) {
-           res.status(401);
-           throw new Error('Please add image file'); 
+    let postBody = await Post.create(req.body);
+
+    if (!req.files || req.files.length === 0) {
+        return res.status(400).json({ success: false, message: 'No files uploaded' });
+    }
+
+    if (req.files.length > 5) {
+        return res.status(400).json({ success: false, message: 'Maximum 5 images allowed' });
+    }
+    const uploadedImageURLs = [];
+
+    try {
+        for (const file of req.files) {
+            const result = await cloudinary.v2.uploader.upload(file.tempFilePath, { folder: "posts" });
+            uploadedImageURLs.push(result.url);
         }
 
-        if(req.files.photo.size > process.env.FILE_UPLOAD_LIMIT) {
-            res.status(401);
-            throw new Error(`Please add a phto less than ${process.env.FILE_UPLOAD_LIMIT}`);
-        }
+        const updatedPost = await Post.findByIdAndUpdate(
+            postBody._id,
+            { $push: { images: { $each: uploadedImageURLs } } },
+            { new: true }
+        );
 
-        const photoFile = req.files.photo;
-
-        photoFile.mv(`${process.env.FILE_UPLOAD_PATH}/${photoFile.name}`, async (err) => {
-            if (err) {
-                res.status(401);
-                throw new Error(err.message);
-            }
-
-            post = await Post.findByIdAndUpdate(
-                post._id,
-                { photo: photoFile.name },
-                {
-                    new: true,
-                    runValidators: true,
-                }
-            );
-            res.status(201).json({ success: true, data: post });
-        });
+        res.status(200).json({ success: true, data: updatedPost });
+    } catch (error) {
+        console.error('Error uploading images:', error);
+        res.status(500).json({ success: false, message: 'Failed to upload images' });
     }
 });
+
 
 
 export const updatePost = asyncHandler(async (req, res) => {

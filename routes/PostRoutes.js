@@ -10,11 +10,16 @@ import {
 } from '../controllers/PostController.js';
 import { ProtectMiddleware, AuthMiddleware } from '../middleware/ProtectMiddleware.js';
 import CommentRoutes from './CommentRoutes.js';
+import multer from 'multer';
 
 const router = express.Router();
 
+const storage =multer.memoryStorage();
+const upload = multer({storage: storage})
+
 router.use('/:postId/comments', CommentRoutes);
-router.route('/').get(getAll).post(ProtectMiddleware, addPost);
+router.route('/').get(getAll);
+router.post('/', ProtectMiddleware, upload.array('posts', 5), addPost);
 router
     .route('/:id')
     .get(getPost)
