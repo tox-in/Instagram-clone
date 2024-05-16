@@ -11,14 +11,17 @@ import {
     followUser,
     unfollowUser
 } from '../controllers/AuthController.js';
+import multer from 'multer';
 import { ProtectMiddleware } from '../middleware/ProtectMiddleware.js';
-import upload from '../utils/multer.js';
+
+const storage =multer.memoryStorage();
+const upload = multer({storage: storage})
 
 const router = express.Router();
 
 router.route('/login').post(login);
 router.route('/register').post(register);
-router.put('/avatar', ProtectMiddleware, upload, uploadAvatar);
+router.put('/avatar', ProtectMiddleware, upload.single("avatar"), uploadAvatar);
 router.route('/me').get(ProtectMiddleware, getMe);
 router.route('/updateDetails').put(ProtectMiddleware, updateDetails);
 router.route('/updatePassword').put(ProtectMiddleware, updatePassword);

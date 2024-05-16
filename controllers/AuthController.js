@@ -4,7 +4,8 @@ import {generateToken} from "../utils/generateToken.js";
 import bcrypt from 'bcrypt';
 import crypto from 'crypto';
 import sendMail from '../utils/sendMail.js';
-import cloudinary from "../config/cloudinary.js";
+import cloudinary from "cloudinary";
+import streamifier from "streamifier";
 
 export const login = asyncHandler(async (req,res) => {
     const email = req.body.email;
@@ -55,22 +56,37 @@ export const register = asyncHandler(async (req, res) => {
 export const uploadAvatar = asyncHandler(async (req, res) => {
     console.log(req.file);
     if (!req.file) {
-      return res.status(400).json({ success: false, message: 'No file uploaded' });
+        return res.status(400).json({ success: false, message: 'No file uploaded' });
     }
     const avatar = req.file.path;
-  
+
     try {
-      const result = await cloudinary.uploader.upload(avatar, { folder: 'avatars' });
-  
-      const user = await User.findByIdAndUpdate(
-        req.user.id,
-        { avatar: result.secure_url },
-        { new: true }
-      );
-      res.status(200).json({ success: true, data: user });
+        let cld_upload_stream = cloudinary.v2.uploader.upload_stream(
+            {
+                folder: "avatar"
+            },
+            async function(error, result) {
+                if (result.url){
+                    const urlPhoto = result.url;
+                    console.log(urlPhoto);
+                    const user = await User.findByIdAndUpdate(
+                        req.user.id,
+                        { avatar: urlPhoto },
+                        { new: true }
+                    );
+                    res.status(200).json({ success: true, data: user });
+                }
+                if (error) {
+                    console.error('Error uploading avatar:', error);
+                    res.status(500).json({ success: false, message: 'Failed to upload avatar' });
+                }
+            }
+        );
+        
+        streamifier.createReadStream(req.file.buffer).pipe(cld_upload_stream);
     } catch (error) {
-      console.error('Error uploading avatar:', error);
-      res.status(500).json({ success: false, message: 'Failed to upload avatar' });
+        console.error('Error uploading avatar:', error);
+        res.status(500).json({ success: false, message: 'Failed to upload avatar' });
     }
 });
 

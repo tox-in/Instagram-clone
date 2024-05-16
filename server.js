@@ -5,6 +5,7 @@ import path from 'path';
 import fileUpload from 'express-fileupload';
 import connectDB from './config/db.js';
 import bodyParser from 'body-parser';
+import cloudinary from 'cloudinary';
 
 import { notFound, errorHandler } from './middleware/ErrorMiddleware.js';
 
@@ -21,7 +22,6 @@ dotenv.config();
 connectDB();
 
 app.use(cors());
-
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -40,6 +40,12 @@ app.use('/api/v1/posts', PostRoutes);
 
 app.use(notFound);
 app.use(errorHandler);
+
+    cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+  });
 
 const PORT = process.env.PORT || 5000;
 
