@@ -7,7 +7,7 @@ import sendMail from '../utils/sendMail.js';
 
 export const login = asyncHandler(async (req,res) => {
     const email = req.body.email;
-    const user = await User.findOne({ email: email }).select('+password').populate('posts');
+    const user = await User.findOne({ email: email }).select('+password').populate('post');
 
     if(!user) {
         res.status(401);

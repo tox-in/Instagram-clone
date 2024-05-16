@@ -3,21 +3,22 @@ import Post from '../models/Post.js';
 
 export const getAll = asyncHandler(async (req,res) => {
     const posts = await Post.find({})
-            .populate('user')
-            .populate('comments')
-            .populate({
-                path: 'comments',
-                populate: {
-                    path: 'user',
-                    model: 'user'
-                },
-            });
+      .populate("user")
+      .populate("comments")
+      .populate({
+        path: "comments",
+        populate: {
+          path: "user",
+          model: "User",
+        },
+      });
     res.status(201).json({ success: true, count: posts.length, data: posts });
 });
 
 
 export const getPost = asyncHandler(async (req,res) => {
-    const post = await Post.findById(req.params.id);
+    const post = await Post.findById(req.params.id)
+    .populate("comments");
 
     if(!post) {
         res.status(404);
