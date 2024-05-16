@@ -4,6 +4,7 @@ import {generateToken} from "../utils/generateToken.js";
 import bcrypt from 'bcrypt';
 import crypto from 'crypto';
 import sendMail from '../utils/sendMail.js';
+import cloudinary from "../config/cloudinary.js";
 
 export const login = asyncHandler(async (req,res) => {
     const email = req.body.email;
@@ -52,28 +53,24 @@ export const register = asyncHandler(async (req, res) => {
 
 
 export const uploadAvatar = asyncHandler(async (req, res) => {
-    if(!req.files || !req.files.avatar) {
-        res.status(404).json({ success: false, message: 'No file uploaded' });
-        return;
+    console.log(req.file);
+    if (!req.file) {
+      return res.status(400).json({ success: false, message: 'No file uploaded' });
     }
-
-        const avatarFile = req.files.avatar;
-
-    try{
-        const result = await cloudinary.uploader.upload(avatarFile.tempFilePath, { folder: 'avatars' });
-
-        const user = await User.findByIdAndUpdate(
+    const avatar = req.file.path;
+  
+    try {
+      const result = await cloudinary.uploader.upload(avatar, { folder: 'avatars' });
+  
+      const user = await User.findByIdAndUpdate(
         req.user.id,
-        {
-            avatar: result.secure_url,
-        },
-        {
-            new: true
-        }
-    );
-    res.status(201).json ({ success: true, data: user });
-    } catch (e) {
-        res.status(500).json({ success: false, message: 'Failed to upload avatar'});
+        { avatar: result.secure_url },
+        { new: true }
+      );
+      res.status(200).json({ success: true, data: user });
+    } catch (error) {
+      console.error('Error uploading avatar:', error);
+      res.status(500).json({ success: false, message: 'Failed to upload avatar' });
     }
 });
 
