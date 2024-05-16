@@ -28,7 +28,7 @@ router
 router.delete('/:id', ProtectMiddleware, AuthMiddleware('user', 'admin'),deletePost);
 router.put('/updateImg/:id', ProtectMiddleware, upload.single("post"), AuthMiddleware('user', 'admin'), updatePostPhoto);
 
-router.route('/:id/likes').put(ProtectMiddleware,likePost);
+router.route('/:id/like').put(ProtectMiddleware,likePost);
 router.route('/:id/unlike').put(ProtectMiddleware,unlikePost);
 
 export default router;

@@ -12,20 +12,32 @@ export const getComments = asyncHandler(async (req, res) => {
 export const addComment = asyncHandler(async (req, res) => {
     const post = await Post.findById(req.params.postId);
 
-    if(!post) {
-        res.status(404);
-        throw new Error('Post not found');
+    if (!post) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Post not found" });
     }
 
     req.body.user = req.user.id;
     req.body.post = post._id;
 
-    let comment = Comment.create(req.body);
-    comment = await comment.populate('user').execPopulate();
+    const commentMessage = req.body.comment;
 
-    res.status(201).json({ success: true, data: comment });
+    console.log(commentMessage);
+
+    try {
+        const comment = await Comment.create(commentMessage)
+        .populate("user");
+
+      //return res.status(201).json({ success: true, data: comment });
+      console.log(comment);
+    } catch (error) {
+      console.error("Error adding comment:", error);
+      return res
+        .status(500)
+        .json({ success: false, message: "Failed to add comment" });
+    }
 });
-
 
 export const updateComment = asyncHandler(async (req, res) => {
     let comment = await Comment.findById(req.params.id);

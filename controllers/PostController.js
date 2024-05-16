@@ -196,7 +196,7 @@ export const likePost = asyncHandler(async (req, res) => {
       runValidators: true,
     }
   );
-  res.status(201).json({ success: true, data: post });
+  res.status(201).json({ success: true, data: "liked successfully" });
 });
 
 export const unlikePost = asyncHandler(async (req, res) => {
@@ -218,5 +218,5 @@ export const unlikePost = asyncHandler(async (req, res) => {
     }
   );
 
-  res.status(201).json({ success: true, data: post });
+  res.status(201).json({ success: true, data: "unliked successfully" });
 });
