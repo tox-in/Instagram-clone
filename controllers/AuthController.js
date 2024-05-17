@@ -132,7 +132,11 @@ export const forgotPassword = asyncHandler(async (req, res) => {
 
     const email = req.body.email;
 
+    console.log(req.body.email);
+
     const user = await User.findOne({ email });
+
+    console.log(user);
 
     if (!user) {
         res.status(404);
@@ -142,7 +146,9 @@ export const forgotPassword = asyncHandler(async (req, res) => {
     await User.findByIdAndUpdate( user.id, {
         resetPasswordToken: hash,
         resetPasswordExpire: new Date().setHours(new Date().getHours() + 2),
-    });
+    }, console.log('success'));
+
+    console.log(hash);
 
     const resetUrl = `${req.protocol}://${req.get('host')}/api/v1/auth/resetpassword/${hash}`;
 
@@ -154,6 +160,7 @@ export const forgotPassword = asyncHandler(async (req, res) => {
 
     try {
         sendMail(email, 'Forgot Password', message);
+        console.log(message);
 
         res.status(201).json({ success: true, data: 'Check your email'});
     } catch (err) {
@@ -161,6 +168,8 @@ export const forgotPassword = asyncHandler(async (req, res) => {
         user.resetPasswordExpires = undefined;
 
         await user.save({ validateBeforeSave: false});
+
+        console.log('some errors');
 
         res.status(401);
         throw new Error(err.message);

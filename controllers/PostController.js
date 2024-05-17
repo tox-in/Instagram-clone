@@ -114,6 +114,10 @@ export const updatePostPhoto = asyncHandler(async (req, res) => {
         .json({ success: false, message: "Post not found" });
     }
 
+    if (req.user.id.toString() !== post.user.toString() && req.user.role !== "admin") {
+      return res.status(403).json({ success: false, message: "Not authorized to update this post" });
+    }
+
     const currentPhotoURL = post.photo;
 
     if (currentPhotoURL) {
@@ -157,6 +161,10 @@ export const deletePost = asyncHandler(async (req, res) => {
         .json({ success: false, message: "Post not found" });
     }
 
+    if (req.user.id.toString() !== post.user.toString() && req.user.role !== "admin") {
+      return res.status(403).json({ success: false, message: "Not authorized to update this post" });
+    }
+
     const currentPhotoURL = post.photo;
 
     if (currentPhotoURL) {
@@ -174,6 +182,10 @@ export const deletePost = asyncHandler(async (req, res) => {
 });
 
 export const likePost = asyncHandler(async (req, res) => {
+  if (!req.user) {
+    return res.status(401).json({ success: false, message: "User not logged in" });
+  }
+  
   let post = await Post.findById(req.params.id);
 
   if (!post) {
