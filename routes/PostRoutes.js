@@ -18,7 +18,7 @@ const router = express.Router();
 const storage =multer.memoryStorage();
 const upload = multer({storage: storage})
 
-router.use('/:postId/comments', CommentRoutes);
+router.use('/comments', CommentRoutes);
 router.route('/').get(getAll);
 router.post('/', ProtectMiddleware, upload.single("post"), addPost);
 router
